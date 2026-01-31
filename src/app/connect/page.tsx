@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-const PENDING_GUEST_RESPONSE_KEY = 'cryptopoli_pendingGuestResponse';
+const PENDING_GUEST_RESPONSE_KEY = 'cryptopoly_pendingGuestResponse';
 
 /**
  * Host opens the "complete" link from the guest (e.g. /connect#<response>).

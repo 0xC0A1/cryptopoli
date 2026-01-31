@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useGameStore } from '@/lib/stores/game-store';
 import Link from 'next/link';
 
-const PENDING_OFFER_KEY = (roomId: string) => `cryptopoli_pendingOffer_${roomId}`;
+const PENDING_OFFER_KEY = (roomId: string) => `cryptopoly_pendingOffer_${roomId}`;
 
 /** Extract base64 offer from URL (hash or pasted full URL). */
 function getOfferFromInput(input: string): string | null {

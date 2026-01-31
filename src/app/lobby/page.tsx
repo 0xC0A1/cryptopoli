@@ -9,8 +9,8 @@ import { cn } from '@/lib/utils';
 
 const AVAILABLE_TOKENS: TokenType[] = ['bitcoin', 'ethereum', 'solana', 'dogecoin', 'cardano', 'polkadot'];
 
-const PENDING_OFFER_KEY = (roomId: string) => `cryptopoli_pendingOffer_${roomId}`;
-const PENDING_GUEST_RESPONSE_KEY = 'cryptopoli_pendingGuestResponse';
+const PENDING_OFFER_KEY = (roomId: string) => `cryptopoly_pendingOffer_${roomId}`;
+const PENDING_GUEST_RESPONSE_KEY = 'cryptopoly_pendingGuestResponse';
 
 export default function LobbyPage() {
   const router = useRouter();
