@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Signaling Client
+// CRYPTOPOLY - Signaling Client
 // ============================================
 
 import { SignalingMessage } from '../game/types';

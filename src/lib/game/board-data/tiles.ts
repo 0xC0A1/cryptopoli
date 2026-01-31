@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Board tiles
+// CRYPTOPOLY - Board tiles
 // ============================================
 
 import type { Tile, PropertyGroup } from '../types';

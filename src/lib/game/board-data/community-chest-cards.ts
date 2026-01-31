@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Community Chest cards (Airdrop)
+// CRYPTOPOLY - Community Chest cards (Airdrop)
 // ============================================
 
 import type { Card } from '../types';

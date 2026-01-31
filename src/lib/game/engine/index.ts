@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Game engine (public API)
+// CRYPTOPOLY - Game engine (public API)
 // ============================================
 
 export {

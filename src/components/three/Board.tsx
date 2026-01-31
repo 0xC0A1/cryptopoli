@@ -279,7 +279,7 @@ export function Board() {
           anchorY="middle"
           rotation={[-Math.PI / 2, 0, 0]}
         >
-          CRYPTOPOLI
+          CRYPTOPOLY
         </Text>
         <Text
           position={[0, 0, 1.5]}

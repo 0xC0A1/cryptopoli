@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Tile landing and card execution
+// CRYPTOPOLY - Tile landing and card execution
 // ============================================
 
 import type { GameState, Tile, Card } from '../types';

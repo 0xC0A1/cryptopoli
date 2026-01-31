@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Player helpers
+// CRYPTOPOLY - Player helpers
 // ============================================
 
 import type { GameState, Player } from '../types';

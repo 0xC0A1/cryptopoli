@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Board helpers
+// CRYPTOPOLY - Board helpers
 // ============================================
 
 import type { PropertyGroup } from '../types';

@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Player movement
+// CRYPTOPOLY - Player movement
 // ============================================
 
 import type { GameState, Player } from '../types';

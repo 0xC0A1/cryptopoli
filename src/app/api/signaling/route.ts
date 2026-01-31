@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Signaling API Route
+// CRYPTOPOLY - Signaling API Route
 // ============================================
 // Note: This is a polling-based signaling server for development.
 // For production, use a proper WebSocket server (e.g., Socket.io, Pusher, or a separate Node.js server).

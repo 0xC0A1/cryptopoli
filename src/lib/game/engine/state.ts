@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Initial state and player creation
+// CRYPTOPOLY - Initial state and player creation
 // ============================================
 
 import type { GameState, Player, PropertyState, TokenType } from '../types';

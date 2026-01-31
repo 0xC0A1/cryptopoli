@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - UI and reset actions
+// CRYPTOPOLY - UI and reset actions
 // ============================================
 
 import { nanoid } from 'nanoid';

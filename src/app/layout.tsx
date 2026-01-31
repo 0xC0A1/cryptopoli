@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cryptopoli - The Crypto Trading Game",
+  title: "Cryptopoly - The Crypto Trading Game",
   description: "A crypto-themed Monopoly game with multiplayer support",
   keywords: ["monopoly", "crypto", "game", "multiplayer", "bitcoin", "ethereum"],
 };

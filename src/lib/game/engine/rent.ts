@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Rent calculation
+// CRYPTOPOLY - Rent calculation
 // ============================================
 
 import type { GameState, Tile, PropertyTile, RailroadTile, UtilityTile } from '../types';

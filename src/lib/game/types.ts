@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Game Types
+// CRYPTOPOLY - Game Types
 // ============================================
 
 // Player token types (crypto-themed icons)

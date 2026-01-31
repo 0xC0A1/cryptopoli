@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Apply game action (main reducer)
+// CRYPTOPOLY - Apply game action (main reducer)
 // ============================================
 
 import type { GameState, GameAction, PropertyTile, TokenType } from '../types';

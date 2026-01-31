@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Game actions (roll, buy, pay, build, jail, end turn)
+// CRYPTOPOLY - Game actions (roll, buy, pay, build, jail, end turn)
 // ============================================
 
 import type { GameAction } from '../../../game/types';

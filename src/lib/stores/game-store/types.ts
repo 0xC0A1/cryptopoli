@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Game store types
+// CRYPTOPOLY - Game store types
 // ============================================
 
 import type { GameState, GameAction, TokenType, TradeOffer } from '../../game/types';

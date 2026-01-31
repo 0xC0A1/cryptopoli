@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - HTTP Polling Signaling Client
+// CRYPTOPOLY - HTTP Polling Signaling Client
 // ============================================
 // Matches the Next.js API route: POST for actions, GET for polling messages.
 

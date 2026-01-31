@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - State sync actions
+// CRYPTOPOLY - State sync actions
 // ============================================
 
 import type { GameState, GameAction } from '../../../game/types';

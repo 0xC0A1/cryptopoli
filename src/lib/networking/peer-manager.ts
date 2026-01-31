@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - WebRTC Peer Manager
+// CRYPTOPOLY - WebRTC Peer Manager
 // ============================================
 
 import { HttpSignalingClient } from './http-signaling';

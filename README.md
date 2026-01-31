@@ -1,36 +1,190 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cryptopoly
 
-## Getting Started
+A crypto-themed Monopoly-style board game with **real-time multiplayer** over WebRTC. Built with Next.js, React Three Fiber, and a deterministic game engine.
 
-First, run the development server:
+---
+
+## Table of contents
+
+- [Quick start](#quick-start)
+- [Architecture overview](#architecture-overview)
+- [Dependencies](#dependencies)
+- [How it works](#how-it-works)
+- [Implementation tricks](#implementation-tricks)
+- [Project structure](#project-structure)
+
+---
+
+## Quick start
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). Create a room, share the code, open another tab/window and join with the same code. Pick tokens and start the game.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Architecture overview
 
-## Learn More
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│  Next.js App (App Router)                                                │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────────────┐ │
+│  │ Home        │  │ Lobby       │  │ Game /game/[roomId]              │ │
+│  │ Create/Join │→ │ Token pick  │→ │ 3D board + dice + actions        │ │
+│  └─────────────┘  └─────────────┘  └─────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────┘
+        │                    │                          │
+        ▼                    ▼                          ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  GameConnectionProvider (layout)                                         │
+│  When roomId + localPlayerId exist: creates PeerManager, attaches to     │
+│  signaling room, wires broadcast/sendToHost → store.applyActionFromNetwork │
+│  and STATE_UPDATE → store.applyStateUpdate                               │
+└─────────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌───────────────────┐     ┌───────────────────┐     ┌───────────────────┐
+│  Signaling API     │     │  PeerManager       │     │  Game store        │
+│  /api/signaling    │◄───►│  (WebRTC)          │◄───►│  (Zustand + Immer) │
+│  HTTP polling      │     │  Host creates      │     │  gameState +       │
+│  create/join room  │     │  offers; guests    │     │  actions → engine  │
+│  SDP/ICE relay     │     │  answer            │     │  applyAction()     │
+└───────────────────┘     └───────────────────┘     └───────────────────┘
+                                                              │
+                                                              ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  Game engine (pure, deterministic)                                      │
+│  applyAction(state, action) → newState                                  │
+│  Board data: TILES, Chance, Community Chest, movement, rent, validation  │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
-To learn more about Next.js, take a look at the following resources:
+- **Host is authority**: The host applies all actions and broadcasts them; guests send `ACTION_REQUEST` to the host. The host applies the action, then sends `STATE_UPDATE` back to the sender (and broadcasts the action to others) so everyone ends up with the same state.
+- **Single source of truth**: Game state lives in the Zustand store; the engine is a pure reducer. No duplicate game logic on the server (the API only does signaling).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Dependencies
 
-## Deploy on Vercel
+| Package | Purpose |
+|--------|---------|
+| **Next.js 16** | App router, API routes (`/api/signaling`), SSR/CSR |
+| **React 19** | UI components |
+| **Zustand** | Global game store (room, player, gameState, actions) |
+| **Immer** | Mutable-looking updates in the store (`draft.gameState = ...`) |
+| **React Three Fiber** | React renderer for Three.js (Canvas, useFrame, etc.) |
+| **@react-three/drei** | Helpers (Text, RoundedBox, OrbitControls, Environment, Stars) |
+| **@react-three/rapier** | Physics (RigidBody, CuboidCollider) for dice |
+| **Three.js** | 3D board, tokens, dice meshes, quaternions for face value |
+| **nanoid** | Player IDs and room codes |
+| **Tailwind CSS 4** | Styling |
+| **Framer Motion** | Animations (e.g. modals) |
+| **Radix UI** | Accessible primitives (Dialog, Slot) |
+| **lucide-react** | Icons |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The signaling API is a **plain HTTP polling** route (POST for actions, GET for messages). For production you’d typically replace it with a WebSocket or similar; the rest of the stack stays the same.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## How it works
+
+### 1. Rooms and signaling
+
+- **Create room**: POST `/api/signaling` with `{ action: 'create-room', peerId }`. API generates a 6-character room code, stores `roomId → { hostId, peers }`, returns `roomId`. The client stores `roomId`, `localPlayerId`, sets `isHost = true`, creates initial game state, and applies `JOIN_GAME` locally.
+- **Join room**: POST with `{ action: 'join-room', peerId, roomId }`. API adds the peer to the room and notifies the host via polling. The joiner gets `roomId` and `hostId`, creates initial state, applies `JOIN_GAME` locally.
+- **GameConnectionProvider**: When `roomId` and `localPlayerId` are set, it instantiates `PeerManager`, which uses `HttpSignalingClient` to poll for signaling messages (peer-joined, offer, answer, ice-candidate). WebRTC connections are established; game messages (`ACTION_REQUEST`, `STATE_UPDATE`) go over RTC data channels.
+
+### 2. Host vs guest
+
+- **Host**: On `ACTION_REQUEST` from any peer, applies the action with `applyActionFromNetwork(action)`, broadcasts the action to all *other* peers, and sends a **STATE_UPDATE** to the *sender* so their UI (e.g. token choice) updates immediately.
+- **Guest**: Sends `ACTION_REQUEST` to the host; does not apply locally until the host sends back a STATE_UPDATE (or the host’s broadcast is received; in this design the host explicitly sends state to the sender).
+
+So every mutation flows: **guest → host → apply → STATE_UPDATE to sender + broadcast action to others**.
+
+### 3. State sync and safety
+
+- **JOIN_GAME**: When a guest joins, they send `JOIN_GAME`; the host applies it and can send state. Guests retry sending `JOIN_GAME` every 2s until they see at least 2 players (handles lost or reordered messages). `JOIN_GAME` in the engine is idempotent so retries don’t overwrite existing player data.
+- **STATE_UPDATE merge**: When applying an incoming `STATE_UPDATE`, if the local player is missing from the incoming state (e.g. host sent state before our JOIN was applied), we merge the local player from current state so we never “lose” ourselves.
+
+### 4. Game flow
+
+- **Lobby**: Players see each other via `gameState.players` (synced by JOIN_GAME and STATE_UPDATE). Host can start when 2–6 players. `START_GAME` includes an authoritative `turnOrder` (host shuffles and sends it) so all clients have the same order.
+- **Playing**: Current player clicks Roll → store sets `isRolling = true`. Dice run a **physics roll** (see below). When both dice settle, we call `applyDiceResult(result, seed)` which dispatches `ROLL_DICE` with the seed; host applies it and broadcasts. Others receive state with `currentDiceRoll`, `lastDiceRollId`, `lastDiceRollSeed` and run a **display roll** with the same seed so the animation matches.
+
+### 5. Dice (deterministic animation)
+
+- **Physics roll (roller)**: A random seed is generated; both dice use a **seeded RNG** (mulberry32) for initial rotation, impulse, and torque. When they settle, we read the face from the rigid body quaternion and call `onRollComplete(result, seed)`. That triggers `applyDiceResult(result, seed)` → `ROLL_DICE` is sent with the seed.
+- **Display roll (other clients)**: They receive `currentDiceRoll`, `lastDiceRollId`, and `lastDiceRollSeed`. They create the same RNG from `lastDiceRollSeed` and run the same physics (same impulses/torques). So the dice tumble identically on every screen. We **do not** snap the dice to a “correct” face after landing; we rely on deterministic physics so the final orientation is already correct.
+- **Face value**: We map the rigid body’s quaternion to the top face by transforming local face normals to world space and picking the one most aligned with +Y (no Euler heuristics).
+
+---
+
+## Implementation tricks
+
+1. **Seeded RNG (mulberry32)**  
+   One seed per roll; same seed ⇒ same sequence of numbers ⇒ same initial rotation/impulse/torque on all clients. Stored in `GameState.lastDiceRollSeed` and passed into the Dice component as `diceRollSeed`.
+
+2. **Roll trigger by `rollId`**  
+   `lastDiceRollId` increments only when `ROLL_DICE` is applied. The Dice component triggers the display animation when `rollId` (from state) changes and we have `targetResult` + `diceRollSeed`, and uses a ref so the animation runs exactly once per roll.
+
+3. **Only roller reports result**  
+   When the display roll (on the guest) settles, `onRollComplete` still fires. We guard: only call `applyDiceResult` if the current player is the local player. That prevents the guest from sending a second `ROLL_DICE` and moving twice.
+
+4. **Idempotent ROLL_DICE**  
+   In the engine, if `currentDiceRoll` already equals the action result and the current player has already rolled, we skip applying again (avoids double movement from any duplicate message).
+
+5. **Refs for RNG in Dice**  
+   SingleDie gets `getNextRandom` from a ref so the same RNG instance is used for both dice in order (first 9 values for die1, next 9 for die2) without dependency churn.
+
+6. **Roll in useFrame**  
+   The actual “roll” (set position, rotation, apply impulse/torque) runs inside `useFrame` so the rigid body ref and physics world are ready; a single `requestAnimationFrame` in an effect was not reliable.
+
+7. **queueMicrotask for onRollComplete**  
+   Reporting the roll result updates the store; we defer with `queueMicrotask` so we don’t update React state during the physics `useFrame` callback and avoid “Cannot update while rendering” issues.
+
+8. **Enclosed dice pit**  
+   Dice spawn at y=8 inside an invisible box (floor, four walls, ceiling) so they never leave the pit regardless of bounces.
+
+9. **Board layout**  
+   `BOARD_SIZE = 25`, with corner and tile sizes chosen so the Monopoly loop (2 corners + 9 tiles per side) fits without overlap; inner corners (e.g. Jail, Free Parking) use `END_CORNER_OFFSET` for alignment.
+
+10. **Split engine and store**  
+    The engine is in `src/lib/game/engine/` (apply-action, movement, rent, tiles, etc.) and is pure. The store composes actions (lobby, game, trade, sync, UI) and calls `applyAction`; networking is unaware of game rules.
+
+---
+
+## Project structure
+
+```
+src/
+├── app/
+│   ├── api/signaling/route.ts    # HTTP polling signaling (create/join room, SDP/ICE)
+│   ├── page.tsx                  # Home: create or join room
+│   ├── lobby/page.tsx            # Lobby: token pick, start game
+│   ├── game/[roomId]/page.tsx    # Game: 3D scene + panels + dice handler
+│   ├── layout.tsx                # GameConnectionProvider wraps app
+│   └── globals.css
+├── components/
+│   ├── GameConnectionProvider.tsx # Creates PeerManager when in room, wires messages → store
+│   ├── game/                     # ActionPanel, PlayerPanel, PropertyCard
+│   └── three/                   # Board, Dice, PlayerTokens, Scene (Canvas + Physics)
+└── lib/
+    ├── game/
+    │   ├── types.ts              # GameState, GameAction, tiles, cards, etc.
+    │   ├── engine/               # Pure reducer + helpers (apply-action, movement, rent, tiles, …)
+    │   └── board-data/           # TILES, Chance, Community Chest, getTilePosition, shuffleArray
+    ├── networking/
+    │   ├── http-signaling.ts     # Polling client for /api/signaling
+    │   └── peer-manager.ts       # WebRTC: create offer/answer, data channel, send/broadcast
+    └── stores/
+        └── game-store/           # Zustand slice: state + lobby/game/trade/sync/UI actions
+```
+
+---
+
+## Deploy
+
+The app is a standard Next.js app. The signaling API uses in-memory storage; rooms are lost on restart. For production you’d replace it with a persistent signaling backend (e.g. WebSockets or a hosted service) and keep the same client-side architecture.

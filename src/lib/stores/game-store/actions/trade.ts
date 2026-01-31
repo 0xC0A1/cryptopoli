@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Trade actions
+// CRYPTOPOLY - Trade actions
 // ============================================
 
 import { nanoid } from 'nanoid';

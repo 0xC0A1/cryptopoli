@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Game constants
+// CRYPTOPOLY - Game constants
 // ============================================
 
 export const STARTING_MONEY = 1500;

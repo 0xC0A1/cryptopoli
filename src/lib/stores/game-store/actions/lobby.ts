@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Lobby actions (create/join room, select token, start game)
+// CRYPTOPOLY - Lobby actions (create/join room, select token, start game)
 // ============================================
 
 import { nanoid } from 'nanoid';

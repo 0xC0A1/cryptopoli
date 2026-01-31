@@ -68,7 +68,7 @@ export default function Home() {
       {/* Logo */}
       <div className="text-center mb-12">
         <h1 className="text-6xl md:text-8xl font-bold text-gradient mb-4">
-          CRYPTOPOLI
+          CRYPTOPOLY
         </h1>
         <p className="text-xl text-white/60">
           The Crypto Trading Game

@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Validation helpers (can build, can sell, etc.)
+// CRYPTOPOLY - Validation helpers (can build, can sell, etc.)
 // ============================================
 
 import type { GameState, Player, PropertyTile, PropertyGroup, RailroadTile, UtilityTile } from '../types';

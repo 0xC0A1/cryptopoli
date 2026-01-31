@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Game store (Zustand)
+// CRYPTOPOLY - Game store (Zustand)
 // ============================================
 
 import { create } from 'zustand';

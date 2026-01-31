@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Dice helpers
+// CRYPTOPOLY - Dice helpers
 // ============================================
 
 export function rollDice(): [number, number] {

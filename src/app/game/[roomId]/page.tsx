@@ -39,7 +39,7 @@ function GameHeader() {
   return (
     <header className="absolute top-0 left-0 right-0 z-10 p-4 flex items-center justify-between">
       <div className="flex items-center gap-4">
-        <h1 className="text-2xl font-bold text-gradient">CRYPTOPOLI</h1>
+        <h1 className="text-2xl font-bold text-gradient">CRYPTOPOLY</h1>
         {roomId && (
           <div className="glass px-3 py-1 rounded-lg text-sm">
             <span className="text-white/60">Room: </span>

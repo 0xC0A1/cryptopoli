@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Board data (public API)
+// CRYPTOPOLY - Board data (public API)
 // ============================================
 
 export { TILES, getTilePosition } from './tiles';

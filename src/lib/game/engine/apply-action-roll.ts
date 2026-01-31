@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - ROLL_DICE action handler
+// CRYPTOPOLY - ROLL_DICE action handler
 // ============================================
 
 import type { GameState } from '../types';

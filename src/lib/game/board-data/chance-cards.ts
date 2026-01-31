@@ -1,5 +1,5 @@
 // ============================================
-// CRYPTOPOLI - Chance cards (Market Volatility)
+// CRYPTOPOLY - Chance cards (Market Volatility)
 // ============================================
 
 import type { Card } from '../types';
